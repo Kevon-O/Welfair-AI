@@ -221,6 +221,56 @@ SAMPLES: tuple[PdfSample, ...] = (
         action_fill="#fffbeb",
         action_text="#92400e",
     ),
+    PdfSample(
+        slug="fictional-medical-billing-account-follow-up",
+        company="Northfield Community Health",
+        company_meta=(
+            "88 Garden Avenue, Trenton, NJ 08608  |  (609) 555-0135  |  "
+            "billing@northfieldhealth.example"
+        ),
+        title="PATIENT BILLING ACCOUNT FOLLOW-UP",
+        subtitle="Updated insurance, payment, and financial assistance information",
+        left_meta=(
+            ("Date", "April 19, 2026"),
+            ("Patient", "Jordan Ellis"),
+            ("Account No.", "NCH-994103"),
+        ),
+        right_meta=(
+            ("Current Balance", "$82.40"),
+            ("Statement Due", "June 19, 2026"),
+            ("Status", "Payment review requested"),
+        ),
+        body_heading="Account Update",
+        body_paragraphs=(
+            "The patient reviewed the charges listed on the April 19, 2026 billing statement "
+            "and believes the visit charge and facility fee are correct.",
+            "An insurance explanation of benefits was received on April 18, 2026 from Garden "
+            "Shield Health Plan. The explanation shows patient responsibility in the amount "
+            "of $82.40 after insurance processing.",
+            "The patient cannot afford the full balance in one payment and is requesting a "
+            "monthly payment plan. The patient states an affordable amount would be $20.60 "
+            "per month over four months.",
+            "A financial assistance screening was completed on April 19, 2026. Based on the "
+            "information currently on file, the patient does not appear to qualify for the "
+            "available charity-care discount.",
+        ),
+        action_heading="Requested Billing Follow-Up",
+        action_lines=(
+            "Review the account for payment-plan setup before the June 19, 2026 due date.",
+            "Contact the patient if any additional billing or insurance documents are needed.",
+        ),
+        contact_heading="Contact Information",
+        contact_lines=(
+            "Patient Billing Office",
+            "Phone: (609) 555-0135  |  Email: billing@northfieldhealth.example",
+            "Preferred contact time: weekdays after 3:00 PM",
+        ),
+        header_fill="#0f766e",
+        panel_fill="#f0fdfa",
+        accent_stroke="#0d9488",
+        action_fill="#ecfeff",
+        action_text="#155e75",
+    ),
 )
 
 

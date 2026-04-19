@@ -2,20 +2,34 @@
 
 Welfair AI is an AI-powered crisis-navigation web app for urgent real-world document problems such as eviction notices, utility shutoff warnings, benefits denials, FAFSA issues, medical bills, court paperwork, and similar survival-mode crises.
 
-The core flow is:
-- upload a document or image
-- analyze it with AI
-- create a new case or attach it to an existing case
-- review urgency, deadlines, missing information, next steps, and suggested resources
-- generate a draft email, response, or call script from the case
+The core experience is:
+1. Upload a document or image.
+2. Analyze it with AI.
+3. Create a new case or attach it to an existing one.
+4. Review urgency, deadlines, missing information, next steps, and suggested resources.
+5. Generate a draft email, response, or call script from the case.
+
+## What The App Does
+
+Welfair AI is designed around a simple but high-value workflow: turning stressful, hard-to-read documents into a clearer case summary with recommended actions. Instead of only extracting text, the app tries to identify the issue type, explain why it matters in plain language, detect deadlines, surface missing information, and suggest grounded next steps the user can take.
+
+## Key Features
+
+1. AI-powered document analysis for PDFs, images, and text files.
+2. Case creation from analyzed uploads.
+3. Additional document uploads for existing cases.
+4. Urgency and deadline-aware case prioritization.
+5. Plain-English summaries with possible consequences of inaction.
+6. Draft generation for emails, written responses, and call scripts.
+7. Guest-only flow for quick local setup and testing.
 
 ## Stack
 
-- Frontend: Next.js, TypeScript, Tailwind CSS
-- Backend: FastAPI, Pydantic, SQLModel
-- AI: OpenAI Responses API with `gpt-5.4-mini`
-- Database: SQLite
-- Auth: guest-only session id stored client-side
+1. Frontend: Next.js, TypeScript, Tailwind CSS
+2. Backend: FastAPI, Pydantic, SQLModel
+3. AI: OpenAI Responses API with `gpt-5.4-mini`
+4. Database: SQLite
+5. Auth: guest-only session id stored client-side
 
 ## Repo Structure
 
@@ -25,11 +39,12 @@ backend/    FastAPI API, SQLite models, OpenAI integration
 docs/       project notes and sample test documents
 ```
 
-## Prerequisites
+## Requirements
 
-- Node.js `20.9+`
-- Python `3.12+`
-- An OpenAI API key with API billing enabled
+You will need:
+1. Node.js `20.9+`
+2. Python `3.12+`
+3. An OpenAI API key with API billing enabled
 
 ## Quick Start
 
@@ -70,9 +85,25 @@ cd frontend
 npm install
 ```
 
-## Run Locally
+### 5. Start the app
 
 Run the backend and frontend in separate terminals.
+
+Backend:
+
+```powershell
+cd backend
+..\.venv\Scripts\python -m uvicorn app.main:app --reload
+```
+
+Frontend:
+
+```powershell
+cd frontend
+npm run dev
+```
+
+## Run Locally
 
 ### Backend
 
@@ -84,9 +115,9 @@ cd backend
 ```
 
 Backend URLs:
-- `http://localhost:8000`
-- `http://127.0.0.1:8000`
-- Swagger docs: `http://127.0.0.1:8000/docs`
+1. `http://localhost:8000`
+2. `http://127.0.0.1:8000`
+3. Swagger docs: `http://127.0.0.1:8000/docs`
 
 ### Frontend
 
@@ -98,40 +129,48 @@ npm run dev
 ```
 
 Frontend URL:
-- `http://localhost:3000`
+1. `http://localhost:3000`
 
-## What Git Ignore Hides On Purpose
+## Local Files Created During Setup
 
-These files are intentionally not committed:
+A fresh clone includes the application source code and setup templates, but it does not include local runtime files such as secrets, installed packages, databases, or uploaded test files.
 
-- `.venv/`
-- `backend/.env`
-- `backend/*.db`
-- `backend/storage/uploads/`
-- `frontend/node_modules/`
-- `frontend/.next/`
-- `frontend/.env.local`
+You will need to create those locally by:
+1. Creating a Python virtual environment.
+2. Installing backend and frontend dependencies.
+3. Copying `backend/.env.example` to `backend/.env`.
+4. Adding your own OpenAI API key.
+5. Starting the backend and frontend locally.
 
-That means a fresh clone will contain the source code and setup templates, but not:
-- your secret API key
-- your local Python environment
-- your local SQLite database
-- uploaded files from testing
-- installed frontend packages or build output
+That includes files such as:
 
-This is expected. A new teammate or judge only needs to:
-1. create a venv
-2. install dependencies
-3. create `backend/.env` from `backend/.env.example`
-4. add an OpenAI API key
-5. run backend and frontend
+1. `.venv/`
+2. `backend/.env`
+3. `backend/*.db`
+4. `backend/storage/uploads/`
+5. `frontend/node_modules/`
+6. `frontend/.next/`
+7. `frontend/.env.local`
 
 ## Notes For Reviewers
 
-- SQLite is file-based, so no separate database server is required.
-- The app uses a guest session id stored in the browser instead of full auth.
-- Local uploads are stored in `backend/storage/uploads/` during runtime.
-- Resolved cases are archived for 21 days in the app experience.
+1. SQLite is file-based, so no separate database server is required.
+2. The app uses a guest session id stored in the browser instead of full auth.
+3. Local uploads are stored in `backend/storage/uploads/` during runtime.
+4. Resolved cases are archived for 21 days in the app experience.
+
+## Suggested Reviewer Flow
+
+If you want to evaluate the project quickly after setup:
+
+1. Open `http://localhost:3000`
+2. Continue as guest
+3. Upload one of the fictional sample documents from `docs/test-documents/`
+4. Review the AI analysis
+5. Create a case or attach the upload to an existing case
+6. Open the case detail view
+7. Generate a draft response
+8. Mark the case resolved and review the archive in Settings
 
 ## Sample Documents
 
@@ -142,23 +181,23 @@ docs/test-documents/
 ```
 
 Current sample set includes:
-- eviction notice
-- utility shutoff final notice
-- medical bill statement
-- financial aid verification request
+1. Eviction notice
+2. Utility shutoff final notice
+3. Medical bill statement
+4. Financial aid verification request
 
 ## Backend Contract
 
 Primary backend routes:
-- `POST /api/analyze`
-- `POST /api/cases`
-- `GET /api/cases`
-- `GET /api/cases/{case_id}`
-- `POST /api/cases/{case_id}/documents`
-- `PATCH /api/cases/{case_id}/resolve`
-- `GET /api/history/uploads`
-- `GET /api/history/resolved-cases`
-- `POST /api/drafts`
+1. `POST /api/analyze`
+2. `POST /api/cases`
+3. `GET /api/cases`
+4. `GET /api/cases/{case_id}`
+5. `POST /api/cases/{case_id}/documents`
+6. `PATCH /api/cases/{case_id}/resolve`
+7. `GET /api/history/uploads`
+8. `GET /api/history/resolved-cases`
+9. `POST /api/drafts`
 
 ## Current Limitation
 
