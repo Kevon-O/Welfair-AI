@@ -109,7 +109,7 @@ export function CaseCard({ caseRecord }: CaseCardProps) {
 
       <Link
         href={`/cases/${caseRecord.id}`}
-        className="mt-5 inline-flex items-center rounded-full bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+        className="mt-5 inline-flex items-center rounded-full bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white no-underline transition hover:bg-violet-700 visited:text-white"
       >
         Open case
       </Link>

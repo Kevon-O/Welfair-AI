@@ -4,7 +4,7 @@ from datetime import date, datetime, timezone
 from uuid import UUID, uuid4
 
 from sqlalchemy import JSON, Column, DateTime, Text
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, SQLModel
 
 
 def utc_now() -> datetime:
@@ -65,8 +65,6 @@ class Case(SQLModel, table=True):
         sa_column=Column(DateTime(timezone=True), nullable=False),
     )
 
-    documents: list["DocumentUpload"] = Relationship(back_populates="case")
-
 
 class DocumentUpload(SQLModel, table=True):
     """Stored upload metadata plus any extracted document content."""
@@ -93,5 +91,3 @@ class DocumentUpload(SQLModel, table=True):
         default_factory=utc_now,
         sa_column=Column(DateTime(timezone=True), nullable=False),
     )
-
-    case: Case | None = Relationship(back_populates="documents")

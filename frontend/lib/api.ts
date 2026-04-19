@@ -10,8 +10,8 @@ import type {
   UploadHistoryItem,
 } from "@/lib/types";
 
-// The backend README exposes FastAPI locally on port 8000, so the frontend can
-// call it directly during development unless a different origin is provided.
+// The backend runs locally on port 8000, so the frontend can call it directly
+// during development unless a different origin is provided.
 export const API_ROUTES = {
   analyze: "/api/analyze",
   cases: "/api/cases",
@@ -23,7 +23,7 @@ export const API_ROUTES = {
   drafts: "/api/drafts",
 } as const;
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
 function buildUrl(path: string): string {
   return `${API_BASE_URL}${path}`;
