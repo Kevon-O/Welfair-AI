@@ -186,19 +186,3 @@ Current sample set includes:
 3. Medical bill statement
 4. Financial aid verification request
 
-## Backend Contract
-
-Primary backend routes:
-1. `POST /api/analyze`
-2. `POST /api/cases`
-3. `GET /api/cases`
-4. `GET /api/cases/{case_id}`
-5. `POST /api/cases/{case_id}/documents`
-6. `PATCH /api/cases/{case_id}/resolve`
-7. `GET /api/history/uploads`
-8. `GET /api/history/resolved-cases`
-9. `POST /api/drafts`
-
-## Current Limitation
-
-Text-based PDFs and images are supported well. Scanned or image-only PDFs are a future improvement area because they still need an OCR or PDF-to-image fallback path for stronger real-world coverage.
