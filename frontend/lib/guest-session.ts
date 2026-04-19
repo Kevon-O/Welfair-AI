@@ -16,8 +16,8 @@ export function getGuestSessionId(): string | null {
   return window.localStorage.getItem(GUEST_SESSION_STORAGE_KEY);
 }
 
-// The browser owns guest identity for MVP. We generate it once and then reuse
-// it for every request header the frontend sends to the backend.
+// The browser owns guest identity in this guest-only flow. We generate it once
+// and then reuse it for every request header the frontend sends to the backend.
 export function ensureGuestSessionId(): string {
   if (typeof window === "undefined") {
     throw new Error("Guest sessions are only available in the browser.");

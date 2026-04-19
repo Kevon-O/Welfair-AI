@@ -1,18 +1,36 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { CaseCard } from "@/components/cases/case-card";
 import { AppShell } from "@/components/layout/app-shell";
-import { getCases } from "@/lib/api";
+import { AnalysisReviewSheet } from "@/components/upload/analysis-review-sheet";
+import { DocumentDropzone } from "@/components/upload/document-dropzone";
+import {
+  addDocumentToCase,
+  createCaseFromAnalysis,
+  getCases,
+  getResolvedCaseHistory,
+} from "@/lib/api";
 import { ensureGuestSessionId, getGuestSessionId } from "@/lib/guest-session";
-import type { CaseRecord } from "@/lib/types";
-import { formatDate } from "@/lib/utils";
+import type {
+  AnalyzeDocumentResponse,
+  CaseRecord,
+  ResolvedCaseHistoryItem,
+} from "@/lib/types";
+import { sortCasesByPriority } from "@/lib/utils";
 
 type DashboardState = "loading" | "ready" | "error";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [dashboardState, setDashboardState] = useState<DashboardState>("loading");
   const [guestSessionId, setGuestSessionId] = useState<string | null>(null);
   const [cases, setCases] = useState<CaseRecord[]>([]);
+  const [resolvedCases, setResolvedCases] = useState<ResolvedCaseHistoryItem[]>([]);
+  const [reviewResult, setReviewResult] = useState<AnalyzeDocumentResponse | null>(null);
+  const [isSavingReview, setIsSavingReview] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -27,12 +45,16 @@ export default function DashboardPage() {
 
         setGuestSessionId(nextGuestSessionId);
 
-        const caseResults = await getCases();
+        const [caseResults, resolvedHistory] = await Promise.all([
+          getCases(),
+          getResolvedCaseHistory(),
+        ]);
         if (cancelled) {
           return;
         }
 
-        setCases(caseResults);
+        setCases(sortCasesByPriority(caseResults));
+        setResolvedCases(resolvedHistory);
         setDashboardState("ready");
       } catch (error) {
         if (cancelled) {
@@ -49,69 +71,89 @@ export default function DashboardPage() {
       }
     }
 
-    loadDashboard();
+    void loadDashboard();
 
     return () => {
       cancelled = true;
     };
   }, []);
 
-  const activeCases = cases.filter((caseRecord) => caseRecord.status === "active");
+  const activeCases = sortCasesByPriority(
+    cases.filter((caseRecord) => caseRecord.status === "active"),
+  );
   const urgentCases = activeCases.filter((caseRecord) =>
     ["high", "critical"].includes(caseRecord.urgency_level),
   );
 
+  async function handleCreateCase(review: AnalyzeDocumentResponse): Promise<void> {
+    try {
+      setIsSavingReview(true);
+      const createdCase = await createCaseFromAnalysis(
+        review.upload_id,
+        review.analysis,
+      );
+      setReviewResult(null);
+      router.push(`/cases/${createdCase.id}`);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "We could not save this case right now.",
+      );
+    } finally {
+      setIsSavingReview(false);
+    }
+  }
+
+  async function handleAttachToCase(
+    caseId: string,
+    review: AnalyzeDocumentResponse,
+  ): Promise<void> {
+    try {
+      setIsSavingReview(true);
+      const updatedCase = await addDocumentToCase(
+        caseId,
+        review.upload_id,
+        review.analysis,
+      );
+      setReviewResult(null);
+      router.push(`/cases/${updatedCase.id}`);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "We could not attach this document right now.",
+      );
+    } finally {
+      setIsSavingReview(false);
+    }
+  }
+
   return (
     <AppShell
       title="Your dashboard"
-      description="Review urgent issues, keep deadlines visible, and track the next actions already grounded in the user’s case records."
+      description="Keep the most urgent situations visible, move quickly from uploaded documents into structured cases, and stay close to the next action that matters."
       currentSection="dashboard"
       guestSessionId={guestSessionId}
       actions={
-        <>
-          <div className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-500">
-            Guest-only MVP
-          </div>
-        </>
+        <Link
+          href="/settings"
+          className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-violet-200 hover:bg-violet-50"
+        >
+          View history
+        </Link>
       }
     >
       <div className="space-y-6">
         <section className="grid gap-4 xl:grid-cols-[1.6fr_1fr]">
-          <div className="rounded-[1.75rem] border border-violet-100 bg-[linear-gradient(135deg,_rgba(109,40,217,0.08),_rgba(255,255,255,0.96))] p-6">
-            <div className="text-xs font-semibold uppercase tracking-[0.25em] text-violet-500">
-              Triage overview
-            </div>
-            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">
-              Keep the most urgent situations visible at a glance.
-            </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
-              Cases are reviewed through plain-language summaries, visible
-              deadlines, and practical next steps so the user can act without
-              losing track of what matters first.
-            </p>
-
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-[1.5rem] border border-white bg-white/90 p-5">
-                <div className="text-sm font-semibold text-slate-900">
-                  Plain-language summaries
-                </div>
-                <div className="mt-2 text-sm leading-6 text-slate-600">
-                  Each case should explain the situation and likely consequence
-                  in short, readable language.
-                </div>
-              </div>
-
-              <div className="rounded-[1.5rem] border border-white bg-white/90 p-5">
-                <div className="text-sm font-semibold text-slate-900">
-                  Action-first guidance
-                </div>
-                <div className="mt-2 text-sm leading-6 text-slate-600">
-                  Recommended actions and resource leads stay attached to the
-                  case instead of getting lost in a document upload inbox.
-                </div>
-              </div>
-            </div>
-          </div>
+          <DocumentDropzone
+            title="Start with a notice, letter, bill, or form"
+            description="Upload one document to analyze it, review the extracted case details, and decide whether it belongs in a new case or an existing one."
+            onAnalyzed={(result) => {
+              setReviewResult(result);
+              setErrorMessage(null);
+            }}
+          />
 
           <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
             <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5">
@@ -137,14 +179,23 @@ export default function DashboardPage() {
             <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5">
               <div className="text-sm text-slate-500">Resolved archive</div>
               <div className="mt-2 text-3xl font-semibold text-slate-950">
-                {cases.filter((caseRecord) => caseRecord.status === "resolved").length}
+                {resolvedCases.length}
               </div>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Resolved cases kept inside the archive window.
+                Cases retained for the 21-day resolved archive window.
               </p>
             </div>
           </div>
         </section>
+
+        <AnalysisReviewSheet
+          review={reviewResult}
+          caseOptions={activeCases}
+          isSaving={isSavingReview}
+          onDismiss={() => setReviewResult(null)}
+          onCreateCase={handleCreateCase}
+          onAttachToCase={handleAttachToCase}
+        />
 
         <section className="rounded-[1.75rem] border border-slate-100 bg-white p-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -156,8 +207,8 @@ export default function DashboardPage() {
                 Current case overview
               </h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Review the current active case queue with the same structure the
-                backend returns for dashboard rendering.
+                Review active cases in the order they need attention: urgency
+                first, then closest deadlines, then the most recent work.
               </p>
             </div>
 
@@ -194,7 +245,8 @@ export default function DashboardPage() {
                 No cases yet
               </div>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                No active cases have been saved for this guest session yet.
+                Start by uploading a document above. Once it is analyzed, you
+                can save it as a new case or attach it to an existing one.
               </p>
             </div>
           ) : null}
@@ -202,76 +254,7 @@ export default function DashboardPage() {
           {dashboardState === "ready" && activeCases.length > 0 ? (
             <div className="mt-6 grid gap-4 xl:grid-cols-2">
               {activeCases.map((caseRecord) => (
-                <article
-                  key={caseRecord.id}
-                  className="rounded-[1.5rem] border border-slate-100 bg-slate-50/70 p-5"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-500">
-                        {caseRecord.issue_type}
-                      </div>
-                      <h3 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">
-                        {caseRecord.short_title}
-                      </h3>
-                    </div>
-
-                    <div className="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-medium text-slate-700">
-                      {caseRecord.urgency_level}
-                    </div>
-                  </div>
-
-                  <div className="mt-4 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-white bg-white p-3">
-                      <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                        Created
-                      </div>
-                      <div className="mt-2 text-slate-800">
-                        {formatDate(caseRecord.created_at)}
-                      </div>
-                    </div>
-                    <div className="rounded-2xl border border-white bg-white p-3">
-                      <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                        Deadline
-                      </div>
-                      <div className="mt-2 text-slate-800">
-                        {caseRecord.deadline_text ?? "No deadline listed yet"}
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="mt-4 text-sm leading-6 text-slate-600">
-                    {caseRecord.summary_plain_english}
-                  </p>
-
-                  <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
-                        Possible next steps
-                      </div>
-                      <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
-                        {caseRecord.recommended_next_steps.slice(0, 2).map((step) => (
-                          <li key={step} className="rounded-2xl bg-white px-3 py-2">
-                            {step}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
-                        Suggested resources
-                      </div>
-                      <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
-                        {caseRecord.suggested_resources.slice(0, 2).map((resource) => (
-                          <li key={resource} className="rounded-2xl bg-white px-3 py-2">
-                            {resource}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </article>
+                <CaseCard key={caseRecord.id} caseRecord={caseRecord} />
               ))}
             </div>
           ) : null}

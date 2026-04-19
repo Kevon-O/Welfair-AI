@@ -29,9 +29,24 @@ function buildUrl(path: string): string {
   return `${API_BASE_URL}${path}`;
 }
 
+type ApiErrorPayload = {
+  detail?: string;
+};
+
 async function parseJsonResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    throw new Error(`Request failed with status ${response.status}.`);
+    let message = `Request failed with status ${response.status}.`;
+
+    try {
+      const errorPayload = (await response.json()) as ApiErrorPayload;
+      if (typeof errorPayload.detail === "string" && errorPayload.detail.trim()) {
+        message = errorPayload.detail;
+      }
+    } catch {
+      // If the backend does not return JSON, fall back to the status-based message.
+    }
+
+    throw new Error(message);
   }
 
   return (await response.json()) as T;

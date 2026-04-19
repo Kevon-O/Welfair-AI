@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { formatGuestSessionLabel } from "@/lib/guest-session";
 import { classNames } from "@/lib/utils";
 
-type AppSection = "dashboard" | "cases" | "settings";
+type AppSection = "dashboard" | "settings";
 
 type AppShellProps = {
   title: string;
@@ -17,7 +17,7 @@ type AppShellProps = {
 const navigationItems: Array<{
   id: AppSection;
   label: string;
-  href?: string;
+  href: string;
   helper: string;
 }> = [
   {
@@ -27,13 +27,9 @@ const navigationItems: Array<{
     helper: "Current case queue",
   },
   {
-    id: "cases",
-    label: "Cases",
-    helper: "Saved case records",
-  },
-  {
     id: "settings",
     label: "Settings",
+    href: "/settings",
     helper: "History and archive",
   },
 ];
@@ -60,8 +56,8 @@ export function AppShell({
           </Link>
 
           <p className="mt-4 text-sm leading-6 text-slate-600">
-            Organize urgent documents, track timelines, and keep the next action
-            visible without creating a real account.
+            Organize urgent documents, keep deadlines visible, and move the next
+            step closer without losing the full case picture.
           </p>
 
           <div className="mt-6 rounded-3xl border border-violet-100 bg-violet-50/80 p-4">
@@ -72,8 +68,8 @@ export function AppShell({
               {formatGuestSessionLabel(guestSessionId)}
             </div>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              This frontend stores an anonymous session ID locally and will send
-              it as <code className="rounded bg-white px-1 py-0.5 text-xs">x-guest-session-id</code>.
+              This workspace stays tied to this browser so the case queue and
+              upload history remain connected while you work.
             </p>
           </div>
 
@@ -83,39 +79,27 @@ export function AppShell({
               const sharedClasses =
                 "block rounded-3xl border px-4 py-4 transition";
 
-              if (item.href) {
-                return (
-                  <Link
-                    key={item.id}
-                    href={item.href}
-                    className={classNames(
-                      sharedClasses,
-                      isActive
-                        ? "border-violet-200 bg-violet-600 text-white shadow-[0_16px_35px_-24px_rgba(109,40,217,0.9)]"
-                        : "border-violet-100 bg-white text-slate-800 hover:border-violet-200 hover:bg-violet-50",
-                    )}
-                  >
-                    <div className="text-sm font-semibold">{item.label}</div>
-                    <div
-                      className={classNames(
-                        "mt-1 text-sm",
-                        isActive ? "text-violet-100" : "text-slate-500",
-                      )}
-                    >
-                      {item.helper}
-                    </div>
-                  </Link>
-                );
-              }
-
               return (
-                <div
+                <Link
                   key={item.id}
-                  className="rounded-3xl border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-slate-500"
+                  href={item.href}
+                  className={classNames(
+                    sharedClasses,
+                    isActive
+                      ? "border-violet-200 bg-violet-600 text-white shadow-[0_16px_35px_-24px_rgba(109,40,217,0.9)]"
+                      : "border-violet-100 bg-white text-slate-800 hover:border-violet-200 hover:bg-violet-50",
+                  )}
                 >
                   <div className="text-sm font-semibold">{item.label}</div>
-                  <div className="mt-1 text-sm">{item.helper}</div>
-                </div>
+                  <div
+                    className={classNames(
+                      "mt-1 text-sm",
+                      isActive ? "text-violet-100" : "text-slate-500",
+                    )}
+                  >
+                    {item.helper}
+                  </div>
+                </Link>
               );
             })}
           </nav>
