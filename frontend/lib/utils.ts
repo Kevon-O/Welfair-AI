@@ -55,6 +55,9 @@ const URGENCY_META: Record<
     badgeClassName: string;
     cardClassName: string;
     accentClassName: string;
+    eyebrowClassName: string;
+    panelClassName: string;
+    listItemClassName: string;
   }
 > = {
   critical: {
@@ -63,6 +66,9 @@ const URGENCY_META: Record<
       "border-rose-200 bg-rose-50 text-rose-700 shadow-[0_10px_24px_-18px_rgba(225,29,72,0.55)]",
     cardClassName: "border-rose-100 bg-[linear-gradient(180deg,_#ffffff_0%,_#fff5f7_100%)]",
     accentClassName: "text-rose-600",
+    eyebrowClassName: "text-rose-500",
+    panelClassName: "border-rose-100 bg-rose-50/65",
+    listItemClassName: "border border-rose-100 bg-white/88",
   },
   high: {
     label: "High",
@@ -71,6 +77,9 @@ const URGENCY_META: Record<
     cardClassName:
       "border-orange-100 bg-[linear-gradient(180deg,_#ffffff_0%,_#fff7ed_100%)]",
     accentClassName: "text-orange-600",
+    eyebrowClassName: "text-orange-500",
+    panelClassName: "border-orange-100 bg-orange-50/70",
+    listItemClassName: "border border-orange-100 bg-white/88",
   },
   medium: {
     label: "Medium",
@@ -79,6 +88,9 @@ const URGENCY_META: Record<
     cardClassName:
       "border-amber-100 bg-[linear-gradient(180deg,_#ffffff_0%,_#fffaf0_100%)]",
     accentClassName: "text-amber-600",
+    eyebrowClassName: "text-amber-500",
+    panelClassName: "border-amber-100 bg-amber-50/70",
+    listItemClassName: "border border-amber-100 bg-white/88",
   },
   low: {
     label: "Low",
@@ -87,6 +99,9 @@ const URGENCY_META: Record<
     cardClassName:
       "border-emerald-100 bg-[linear-gradient(180deg,_#ffffff_0%,_#f1fcf7_100%)]",
     accentClassName: "text-emerald-600",
+    eyebrowClassName: "text-emerald-500",
+    panelClassName: "border-emerald-100 bg-emerald-50/70",
+    listItemClassName: "border border-emerald-100 bg-white/88",
   },
 };
 

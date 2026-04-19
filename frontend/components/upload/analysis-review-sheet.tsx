@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { AnalyzeDocumentResponse, CaseRecord } from "@/lib/types";
-import { formatDateTime, formatDeadline } from "@/lib/utils";
+import { classNames, formatDateTime, formatDeadline, getUrgencyMeta } from "@/lib/utils";
 import { UrgencyBadge } from "@/components/cases/urgency-badge";
 
 type AnalysisReviewSheetProps = {
@@ -23,9 +23,13 @@ type AnalysisReviewSheetProps = {
 function ReviewList({
   title,
   items,
+  titleClassName,
+  itemClassName,
 }: {
   title: string;
   items: string[];
+  titleClassName?: string;
+  itemClassName?: string;
 }) {
   if (items.length === 0) {
     return null;
@@ -33,12 +37,23 @@ function ReviewList({
 
   return (
     <div>
-      <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+      <div
+        className={classNames(
+          "text-xs font-semibold uppercase tracking-[0.2em]",
+          titleClassName ?? "text-slate-400",
+        )}
+      >
         {title}
       </div>
       <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
         {items.slice(0, 4).map((item) => (
-          <li key={item} className="rounded-2xl bg-slate-50 px-3 py-2">
+          <li
+            key={item}
+            className={classNames(
+              "rounded-2xl px-3 py-2",
+              itemClassName ?? "bg-slate-50",
+            )}
+          >
             {item}
           </li>
         ))}
@@ -85,12 +100,23 @@ export function AnalysisReviewSheet({
       ? attachCaseLabel ?? "this case"
       : caseOptions.find((caseOption) => caseOption.id === selectedCaseId)?.short_title ??
         "selected case";
+  const urgencyMeta = getUrgencyMeta(review.analysis.urgency_level);
 
   return (
-    <section className="rounded-[1.75rem] border border-violet-100 bg-white p-6 shadow-[0_24px_70px_-44px_rgba(91,33,182,0.26)]">
+    <section
+      className={classNames(
+        "rounded-[1.75rem] border p-6 shadow-[0_24px_70px_-44px_rgba(91,33,182,0.26)]",
+        urgencyMeta.cardClassName,
+      )}
+    >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-500">
+          <div
+            className={classNames(
+              "text-xs font-semibold uppercase tracking-[0.22em]",
+              urgencyMeta.eyebrowClassName,
+            )}
+          >
             Analysis review
           </div>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
@@ -139,10 +165,20 @@ export function AnalysisReviewSheet({
       ) : null}
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.25fr_1fr]">
-        <div className="rounded-[1.5rem] border border-slate-100 bg-slate-50/70 p-5">
+        <div
+          className={classNames(
+            "rounded-[1.5rem] border p-5",
+            urgencyMeta.panelClassName,
+          )}
+        >
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-500">
+              <div
+                className={classNames(
+                  "text-xs font-semibold uppercase tracking-[0.2em]",
+                  urgencyMeta.eyebrowClassName,
+                )}
+              >
                 {review.analysis.issue_type}
               </div>
               <h3 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">
@@ -169,7 +205,12 @@ export function AnalysisReviewSheet({
               <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
                 Deadline
               </div>
-              <div className="mt-2 text-sm font-medium text-slate-700">
+              <div
+                className={classNames(
+                  "mt-2 text-sm font-semibold",
+                  urgencyMeta.accentClassName,
+                )}
+              >
                 {formatDeadline(
                   review.analysis.deadline_text,
                   review.analysis.deadline_date,
@@ -182,18 +223,26 @@ export function AnalysisReviewSheet({
             <ReviewList
               title="Possible next steps"
               items={review.analysis.recommended_next_steps}
+              titleClassName={urgencyMeta.accentClassName}
+              itemClassName={urgencyMeta.listItemClassName}
             />
             <ReviewList
               title="Suggested resources"
               items={review.analysis.suggested_resources}
+              titleClassName={urgencyMeta.accentClassName}
+              itemClassName={urgencyMeta.listItemClassName}
             />
             <ReviewList
               title="Missing information"
               items={review.analysis.missing_information}
+              titleClassName={urgencyMeta.accentClassName}
+              itemClassName={urgencyMeta.listItemClassName}
             />
             <ReviewList
               title="Missing documents"
               items={review.analysis.missing_documents}
+              titleClassName={urgencyMeta.accentClassName}
+              itemClassName={urgencyMeta.listItemClassName}
             />
           </div>
         </div>
