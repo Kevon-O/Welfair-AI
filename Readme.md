@@ -2,6 +2,9 @@
 
 Welfair AI is an AI-powered crisis-navigation web app for urgent real-world document problems such as eviction notices, utility shutoff warnings, benefits denials, FAFSA issues, medical bills, court paperwork, and similar survival-mode crises.
 
+Here is the Demo video listed below.
+https://drive.google.com/file/d/1_ZhOtmwEiAfqVz-ZsApgj5fTtp2G0wUo/view?usp=sharing
+
 The core experience is:
 1. Upload a document or image.
 2. Analyze it with AI.
